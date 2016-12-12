@@ -3,7 +3,7 @@
 """
 Created on Tue Nov  1 17:10:48 2016
 
-@author: brian
+@author: Brian
 
 Routines for generating spike trains
 """

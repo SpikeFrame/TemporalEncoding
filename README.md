@@ -1,7 +1,7 @@
 # TemporalEncoding
 Supervised learning in spiking neural networks for precise temporal encoding
 
-Code written in pyNN for training a single-layer, feed-forward spiking network with all-to-all connectivity to form associations between arbitrary input and target output spike patterns. Full details in: Gardner, B. & Grüning, A. (2016). Supervised learning in spiking neural networks for precise temporal encoding. PLoS ONE 11(8): e0161335. doi:10.1371/journal.pone.0161335.
+Code written in pyNN for training a single-layer, feed-forward spiking network with all-to-all connectivity to form associations between arbitrary input and target output spike patterns. Alternatively, input patterns may be associated with target output spike patterns provided by other (tutor) neurons. More details in: Gardner, B. & Grüning, A. (2016). Supervised learning in spiking neural networks for precise temporal encoding. PLoS ONE 11(8): e0161335. doi:10.1371/journal.pone.0161335.
 
 ## Dependencies:
 - Python 2.7

@@ -3,7 +3,7 @@
 """
 Created on Thu Oct 27 16:17:53 2016
 
-@author: brian
+@author: Brian
 
 Useful plotting / data functions
 """

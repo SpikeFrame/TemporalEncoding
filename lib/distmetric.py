@@ -3,7 +3,7 @@
 """
 Created on Wed Nov  2 15:20:41 2016
 
-@author: brian
+@author: Brian
 
 Error metrics of (dis)similarity between spike trains
 """

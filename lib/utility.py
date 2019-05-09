@@ -75,8 +75,26 @@ def plot_error(err):
 
     plt.figure()
     plt.plot(1 + np.arange(len(err)), err, 'k-', linewidth=1)
+    plt.xlim([0, len(err)])
     plt.xlabel('Epochs')
     plt.ylabel('van Rossum distance')
+    plt.grid()
+    plt.show()
+
+    plt.ion()
+
+
+def plot_accuracy(accs, thr=90.):
+    """Plot classification performance with epochs."""
+    plt.ioff()
+
+    plt.figure()
+    plt.plot(1 + np.arange(len(accs)), accs, 'k-', linewidth=1)
+    plt.plot([0, len(accs)], [thr, thr], 'r--', linewidth=1)
+    plt.xlim([0, len(accs)])
+    plt.ylim([0, 100])
+    plt.xlabel('Epochs')
+    plt.ylabel('Classification performance (%)')
     plt.grid()
     plt.show()
 
@@ -102,3 +120,62 @@ def lag_peak(param):
 def psp_peak(param):
     """Peak value of the PSP"""
     return psp(lag_peak(param), param)
+
+
+def accuracy(dt_max, precision=1.):
+    """
+    Classification performance / accuracy (%) when classifying input patterns
+    based on the precise timing of individual spikes.
+
+    Inputs
+    ------
+    dt_max : array, shape (num_epochs, num_patterns, num_outputs)
+        Recorded maximum of displaced output firing times w.r.t. their targets.
+    precision : float
+        Tolerance for a correct classification (default is 1 ms precision of
+        each output spike w.r.t. its target).
+
+    Output
+    ------
+    return : array, shape (num_epochs,)
+        Classification performance per epoch, averaged across pattern trials.
+    """
+    # Largest recorded timing displacements per trial
+    dt_max_trials = np.max(dt_max, -1)
+    # Accuracies (%)
+    accuracies = 100. * (dt_max_trials <= precision).astype(float)
+    # Average accuracy across trials
+    accuracies = np.mean(accuracies, -1)
+    return accuracies
+
+
+def ewma_vec(data, window):
+    """
+    Exponentially-weighted moving average on data, taken from stackoverflow.
+
+    Inputs
+    ------
+    data : array, shape (num_samples,)
+        Recorded data series.
+    window : int
+        Averaging window.
+
+    Output
+    ------
+    return : array, shape (num_samples,)
+        Exponentially-weighted moving average of data.
+    """
+    alpha = 2 / (window + 1.0)
+    alpha_rev = 1 - alpha
+    n = data.shape[0]
+
+    pows = alpha_rev**(np.arange(n + 1))
+
+    scale_arr = 1 / pows[:-1]
+    offset = data[0] * pows[1:]
+    pw0 = alpha * alpha_rev**(n - 1)
+
+    mult = data * pw0 * scale_arr
+    cumsums = mult.cumsum()
+    out = offset + cumsums * scale_arr[::-1]
+    return out

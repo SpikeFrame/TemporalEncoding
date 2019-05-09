@@ -139,6 +139,9 @@ class NetworkLearning(SingleLayer):
         dw = np.zeros((self.param.n_inputs, self.param.n_outputs))
         # Initial network error
         err = 0.0
+        # Record maximum timing displacements of actual w.r.t. target spike(s),
+        # per pattern
+        dt_max = np.full((self.param.n_patterns, self.param.n_outputs), np.inf)
 
         # Check if learning task requires tutor neurons
         if hasattr(learn_task, 'pattern_target'):
@@ -167,12 +170,21 @@ class NetworkLearning(SingleLayer):
                                       spike_trains_target)
             # Update network error
             err += van_rossum_spatio(spike_trains_out, spike_trains_target)
+            # Record maximum timing displacement of output layer nrns;
+            # Num. actual and target spikes per output nrn must match, and at
+            # least one target spike must be present
+            for nrn in xrange(self.param.n_outputs):
+                spikes_out = spike_trains_out[nrn].value
+                spikes_target = spike_trains_target[nrn].value
+                if len(spikes_out) == len(spikes_target) and \
+                   len(spikes_target > 0):
+                    dt_max[i, nrn] = np.max(np.abs(spikes_out - spikes_target))
 
         # Update weights
         self.w = self.connections_exc.get('weight', 'array') + dw
         self.connections_exc.set(weight=self.w.ravel())
-        # Return network error
-        return err / len(learn_task.pattern_input)
+        # Return network error and max. timing displacements
+        return err / len(learn_task.pattern_input), dt_max
 
 
 class NetworkINST(NetworkLearning):

@@ -109,6 +109,9 @@ def main(task_id=0):
         def __init__(self, learn_task, param):
             # Network error: van Rossum distance
             self.err = np.zeros(param.n_epochs)
+            # Network absolute timing displacements
+            self.dt_max = np.full((param.n_epochs, param.n_patterns,
+                                   param.n_outputs), np.inf)
             # Record weights per epoch for output layer
             self.w = np.zeros((param.n_epochs, param.n_inputs,
                                param.n_outputs))
@@ -131,7 +134,7 @@ def main(task_id=0):
 
     for i in xrange(param.n_epochs):
         # Simulate network
-        rec.err[i] = net.learn(learn_task)
+        rec.err[i], rec.dt_max[i] = net.learn(learn_task)
         # Record weights of output layer
         rec.w[i, :, :] = net.w
         if task_id == 1:
@@ -147,8 +150,13 @@ def main(task_id=0):
     if task_id == 1:
         rec.w_ref = net.w_ref
 
+    # Classification performance
+    accs = utility.accuracy(rec.dt_max)
+    # Exponentially-weighted moving average
+    accs_ewma = utility.ewma_vec(accs, len(accs) / 10.)
     # Plots:
-    utility.plot_error(rec.err)  # Performance metric
+    utility.plot_error(rec.err)  # Distance metric
+    utility.plot_accuracy(accs_ewma)  # Performance metric
 
     # Plots for one pattern:
     if param.n_patterns == 1:
